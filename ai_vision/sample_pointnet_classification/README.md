@@ -6,7 +6,7 @@
   </p>
 </div>
 
-<img src="resource/demo.gif" width="640"/>
+<img src="https://github.com/qualcomm-qrb-ros/qrb_ros_samples/blob/gif/ai_vision/sample_pointnet_classification/resource/demo.gif" width="640"/>
 
 ---
 
@@ -60,6 +60,14 @@
     <td>
       <a href="https://www.qualcomm.com/products/internet-of-things/industrial-processors/iq9-series/iq-9075">
         <img src="https://s7d1.scene7.com/is/image/dmqualcommprod/dragonwing-IQ-9075-EVK?$QC_Responsive$&fmt=png-alpha" width="160">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>Qualcomm Dragonwing™ IQ-8275 EVK</td>
+    <td>
+      <a href="https://www.qualcomm.com/internet-of-things/products/iq8-series/iq-8275">
+        <img src="https://s7d1.scene7.com/is/image/dmqualcommprod/IQ8?$QC_Responsive$&fmt=png-alpha" width="160">
       </a>
     </td>
   </tr>
@@ -136,22 +144,7 @@ cd ~/qrb_ros_sample_ws/src/qrb_ros_samples/ai_vision/sample_pointnet_classificat
 rosdep install --from-paths . --ignore-src --rosdistro jazzy -y --skip-keys "qrb_ros_nn_inference"
 source /opt/ros/jazzy/setup.bash
 colcon build
-```
-
-- Package and deploy to device:
-```bash
-cd install/sample_pointnet_classification
-tar -czvf sample_pointnet_classification.tar.gz lib share
-scp sample_pointnet_classification.tar.gz root@<device-ip>:/opt/
-```
-
-> [!NOTE]
-> The following steps run on the **Qualcomm Linux device**.
-
-```bash
-mount -o remount,rw /usr
-tar --no-overwrite-dir --no-same-owner -zxvf /opt/sample_pointnet_classification.tar.gz -C /usr/
-source /usr/share/qirp-setup.sh
+source install/setup.bash
 ```
 
 - Run sample PointNet classification with your MCAP bag file:
@@ -173,7 +166,7 @@ ros2 launch sample_pointnet_classification launch_with_ros2_bag_play.py \
 
 - Check the classification result on the `/pointnet_output` topic:
 ```bash
-source /usr/share/qirp-setup.sh
+source install/setup.bash
 ros2 topic echo /pointnet_output
 ```
 
