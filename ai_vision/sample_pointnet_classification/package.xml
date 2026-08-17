@@ -4,7 +4,7 @@
   <name>sample_pointnet_classification</name>
   <version>1.0.0</version>
   <description>PointNet 3D point cloud classifier using Livox LiDAR PointCloud2 input</description>
-  <maintainer email="iot@qti.qualcomm.com">Qualcomm IoT</maintainer>
+  <maintainer email="kainli@qti.qualcomm.com">Kainan Li</maintainer>
   <license>BSD 3-Clause License</license>
 
   <exec_depend>rclpy</exec_depend>
