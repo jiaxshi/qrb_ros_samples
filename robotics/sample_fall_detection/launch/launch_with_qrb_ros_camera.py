@@ -5,22 +5,23 @@ from launch import LaunchDescription
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from ament_index_python.packages import get_package_share_directory
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 from launch.substitutions import PathJoinSubstitution
-
+from launch.substitutions import LaunchConfiguration
+from launch.actions import LogInfo
+from launch.substitutions import PathJoinSubstitution
+from ament_index_python.packages import get_package_share_directory
+import os
+from launch.logging import get_logger
+from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     # -------- QRB ROS Camera (IMX577 example) --------
-    camera_info_file_arg = DeclareLaunchArgument(
-        'camera_info_file',
-        default_value='camera_info_imx577.yaml',
-        description='camera info yaml filename'
+    camera_info_file_path = os.path.join(
+        get_package_share_directory('qrb_ros_camera'),
+        'config', 'camera_info_imx577.yaml'
     )
-
-    camera_info_config_file_path = PathJoinSubstitution([
-        FindPackageShare('qrb_ros_camera'),
-        'config',
-        LaunchConfiguration('camera_info_file')
-    ])
 
     camera_node = ComposableNode(
         package='qrb_ros_camera',
@@ -36,7 +37,7 @@ def generate_launch_description():
                 'width': 640,
                 'fps': 30,
             },
-            'camera_info_path': camera_info_config_file_path,
+            'camera_info_path': camera_info_file_path,
             'dump': False,
             'dump_camera_info_': False,
         }]
