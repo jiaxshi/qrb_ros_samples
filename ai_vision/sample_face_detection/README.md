@@ -114,14 +114,11 @@ ros2 launch sample_face_detection launch_with_image_publisher.py model_path:=/op
 ros2 launch sample_face_detection launch_with_image_publisher.py image_path:=/opt/resource/xxx.jpg model_path:=/opt/model/
 or # You can launch with qrb_ros_camera lacunch file
 ros2 launch sample_face_detection launch_with_qrb_ros_camera.py  model_path:=/opt/model/
-or # You can launch with usb_cam (USB webcam)
-ros2 launch sample_face_detection launch_with_usb_cam.py  model_path:=/opt/model/
 ```
 
-> **Note:** For `usb_cam`, image quality parameters (`brightness`, `contrast`, `saturation`, `sharpness`, `gain`, and `focus`) default to `-1` (camera driver defaults). Override them as launch arguments to tune for your USB camera, for example:
-> ```bash
-> ros2 launch sample_face_detection launch_with_usb_cam.py model_path:=/opt/model/ brightness:=128 contrast:=64 saturation:=80 sharpness:=50 gain:=0 focus:=0
-> ```
+> **Note:**
+The USB camera launch code has not yet been uploaded to qualcomm-ppa repository.
+For USB camera usage, refer to [Build from source](#-build-from-source).
 
 When using this launch script, it will use the default parameters:
 

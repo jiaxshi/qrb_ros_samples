@@ -138,17 +138,13 @@ mv coco.ymal /opt/
 source /opt/ros/jazzy/setup.bash
 ros2 launch sample_object_detection launch_with_qrb_ros_camera.py model:=/opt/model/yolov8_det_qcs9075.bin
 
-# Or use usb_cam (USB webcam)
-ros2 launch sample_object_detection launch_with_usb_cam.py model:=/opt/model/yolov8_det_qcs9075.bin
-
 # Or use Orbbec camera (USB)
 ros2 launch sample_object_detection launch_with_orbbec_camera.py model:=/opt/model/yolov8_det_qcs9075.bin
 ```
 
-> **Note:** For `usb_cam`, image quality parameters (`brightness`, `contrast`, `saturation`, `sharpness`, `gain`, and `focus`) default to `-1` (camera driver defaults). Override them as launch arguments to tune for your USB camera, for example:
-> ```bash
-> ros2 launch sample_object_detection launch_with_usb_cam.py model:=/opt/model/yolov8_det_qcs9075.bin brightness:=128 contrast:=64 saturation:=80 sharpness:=50 gain:=0 focus:=0
-> ```
+> **Note:**
+The USB camera launch code has not yet been uploaded to qualcomm-ppa repository.
+For USB camera usage, refer to [Build from source](#-build-from-source).
 
 The output for these commands:
 

@@ -119,14 +119,11 @@ export ROS_DOMAIN_ID=124
 ros2 launch sample_hrnet_pose_estimation launch_with_image_publisher.py image_path:=/opt/ros/jazzy/share/sample_hrnet_pose_estimation/input_image.jpg
 # Launch the sample with qrb ros camera.
 ros2 launch sample_hrnet_pose_estimation launch_with_qrb_ros_camera.py
-# Launch the sample with usb_cam (USB webcam)
-ros2 launch sample_hrnet_pose_estimation launch_with_usb_cam.py
 ```
 
-> **Note:** For `usb_cam`, image quality parameters (`brightness`, `contrast`, `saturation`, `sharpness`, `gain`, and `focus`) default to `-1` (camera driver defaults). Override them as launch arguments to tune for your USB camera, for example:
-> ```bash
-> ros2 launch sample_hrnet_pose_estimation launch_with_usb_cam.py brightness:=128 contrast:=64 saturation:=80 sharpness:=50 gain:=0 focus:=0
-> ```
+> **Note:**
+The USB camera launch code has not yet been uploaded to qualcomm-ppa repository.
+For USB camera usage, refer to [Build from source](#-build-from-source).
 
 Open a new terminal and use rqt to view topic `/pose_estimation_results`.
 
