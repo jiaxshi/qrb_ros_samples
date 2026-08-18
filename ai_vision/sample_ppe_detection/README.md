@@ -6,6 +6,8 @@
   </p>
 </div>
 
+![](https://github.com/dustyheart/qrb_ros_samples/blob/gif/ai_vision/sample_ppe_detection/resource/ppe_result.gif)
+
 ---
 
 ## 👋 Overview
