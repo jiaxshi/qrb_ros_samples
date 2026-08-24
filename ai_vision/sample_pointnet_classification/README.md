@@ -71,10 +71,6 @@
       </a>
     </td>
   </tr>
-  <tr>
-    <td>LiDAR Support</td>
-    <td></td>
-  </tr>
 </table>
 
 ## ✨ Installation
@@ -91,6 +87,18 @@
 
 > [!NOTE]
 > The following model preparation steps run on an **Ubuntu development machine** with QAIRT installed.
+
+Add Qualcomm PPA repository source:
+```bash
+sudo add-apt-repository ppa:ubuntu-qcom-iot/qcom-ppa
+sudo add-apt-repository ppa:ubuntu-qcom-iot/qirp
+sudo apt update
+```
+
+Install QRB ROS packages:
+```bash
+sudo apt install -y ros-jazzy-qrb-ros-nn-inference
+```
 
 Download the PointNet TFLite model:
 ```bash
@@ -123,12 +131,6 @@ qnn-model-lib-generator \
     -t "aarch64-ubuntu-gcc9.4"
 ```
 
-Copy the model files to the device:
-```bash
-scp ./runtime/aarch64-ubuntu-gcc9.4/libpointnet.so root@<device-ip>:/opt/model/
-scp ./pointnet.bin root@<device-ip>:/opt/model/
-```
-
 ## 👨‍💻 Build from source
 
 - Download source code from the qrb-ros-sample repository:
@@ -145,6 +147,11 @@ rosdep install --from-paths . --ignore-src --rosdistro jazzy -y --skip-keys "qrb
 source /opt/ros/jazzy/setup.bash
 colcon build
 source install/setup.bash
+```
+
+- Run the demo with the bundled chair point cloud sample:
+```bash
+ros2 launch sample_pointnet_classification launch_with_ros2_bag_play.py
 ```
 
 - Run sample PointNet classification with your MCAP bag file:
@@ -164,9 +171,9 @@ ros2 launch sample_pointnet_classification launch_with_ros2_bag_play.py \
 
 ## 👨‍💻 Visualization
 
-- Check the classification result on the `/pointnet_output` topic:
+- Check the classification result on the `/pointnet_output` topic in a new terminal:
 ```bash
-source install/setup.bash
+source /opt/ros/jazzy/setup.bash
 ros2 topic echo /pointnet_output
 ```
 
