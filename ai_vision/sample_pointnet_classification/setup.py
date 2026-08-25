@@ -22,9 +22,10 @@ setup(
         ('share/' + package_name + '/launch', [
             'launch/launch_with_ros2_bag_play.py',
         ]),
-        ('share/' + package_name + '/resource/chair_0029_rotating',
-            glob('resource/chair_0029_rotating/*.mcap') +
-            glob('resource/chair_0029_rotating/*.yaml')),
+        ('share/' + package_name + '/resource/chair_0029_rotating', [
+            'resource/chair_0029_rotating/chair_0029_rotating_0.mcap',
+            'resource/chair_0029_rotating/metadata.yaml',
+        ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
