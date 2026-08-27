@@ -130,6 +130,7 @@ qnn-model-lib-generator \
     -o ./runtime/ \
     -t "aarch64-ubuntu-gcc9.4"
 ```
+
 Copy the model runtime library to the default path:
 ```bash
 sudo cp ./runtime/aarch64-ubuntu-gcc9.4/libpointnet.so /opt/model/
