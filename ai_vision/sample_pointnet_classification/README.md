@@ -162,14 +162,14 @@ ros2 launch sample_pointnet_classification launch_with_ros2_bag_play.py
 - Run sample PointNet classification with your MCAP bag file:
 ```bash
 ros2 launch sample_pointnet_classification launch_with_ros2_bag_play.py \
-    mcap_path:=<path/to/your/bagfile.mcap>
+    mcap_path:=./resource/chair_0029_rotating/chair_0029_rotating_0.mcap
 ```
 
 - To specify a custom model path:
 ```bash
 ros2 launch sample_pointnet_classification launch_with_ros2_bag_play.py \
-    mcap_path:=<path/to/your/bagfile.mcap> \
-    model_path:=<path/to/libpointnet.so>
+    mcap_path:=./resource/chair_0029_rotating/chair_0029_rotating_0.mcap \
+    model_path:=/opt/model/libpointnet.so
 ```
 
 </details>
