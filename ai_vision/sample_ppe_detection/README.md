@@ -6,7 +6,7 @@
   </p>
 </div>
 
-![](https://github.com/dustyheart/qrb_ros_samples/blob/gif/ai_vision/sample_ppe_detection/resource/ppe_result.gif)
+<img src="https://github.com/dustyheart/qrb_ros_samples/blob/gif/ai_vision/sample_ppe_detection/resource/ppe_result.gif" width="640"/>
 
 ---
 
@@ -17,7 +17,7 @@
 
 ```mermaid
 flowchart LR
-    A["Image source<br/>(image_publisher /<br/>publish_test_video)"] -->|/image_raw| B["ppe_detection_node<br/>(letterbox preprocess)"]
+    A["Image source<br/>(image_publisher /<br/>usb_cam)"] -->|/image_raw| B["ppe_detection_node<br/>(letterbox preprocess)"]
     B -->|/qrb_inference_input_tensor| C["qrb_ros_nn_inference<br/>(NPU / HTP inference)"]
     C -->|/qrb_inference_output_tensor| D["ppe_detection_node<br/>(dequantize / NMS / box-hold)"]
     D -->|/ppe_detection/image| E["Annotated image"]
@@ -26,8 +26,8 @@ flowchart LR
 
 | Node Name | Function |
 | --------- | -------- |
-| [image publisher](https://github.com/ros-perception/image_publisher) | Publishes a local image file to a ROS topic at a fixed rate. |
-| publish_test_video | Reads a video file (or a live camera `/dev/videoX`) and publishes frames to `/image_raw` at a low, NPU-friendly rate. |
+| image publisher | Publishes a local image file to a ROS topic at a fixed rate. |
+| usb_cam | Captures frames from a live USB (V4L2) camera and publishes them to `/image_raw`. |
 | sample ppe detection | Subscribes to input images for letterbox preprocessing, sends tensors to the NN inference node, then post-processes (dequantize / NMS / box-hold) and publishes annotated results. |
 | [qrb ros nn interface](https://github.com/qualcomm-qrb-ros/qrb_ros_nn_inference) | Loads a trained AI model, receives preprocessed images, performs inference on the NPU, and publishes output tensors. |
 
@@ -39,9 +39,9 @@ flowchart LR
 - [🎯 Supported targets](#-supported-targets)
 - [✨ Installation](#-installation)
 - [🚀 Usage](#-usage)
+  - [👨‍💻 Prerequisites](#-prerequisites)
+  - [👨‍💻 Build from source](#-build-from-source)
 - [👨‍💻 Visualization](#-visualization)
-- [👨‍💻 Prerequisites](#-prerequisites)
-- [👨‍💻 Build from source](#-build-from-source)
 - [🤝 Contributing](#-contributing)
 - [❤️ Contributors](#️-contributors)
 - [❔ FAQs](#-faqs)
@@ -72,6 +72,14 @@ flowchart LR
       </a>
     </td>
   </tr>
+  <tr>
+    <td>Qualcomm Dragonwing™ IQ-8275 EVK</td>
+    <td>
+      <a href="https://www.qualcomm.com/internet-of-things/products/iq8-series/iq-8275">
+        <img src="https://s7d1.scene7.com/is/image/dmqualcommprod/IQ8?$QC_Responsive$&fmt=png-alpha" width="160">
+      </a>
+    </td>
+  </tr>
 </table>
 
 ## ✨ Installation
@@ -81,6 +89,12 @@ flowchart LR
 > Refer to [Install Ubuntu on Qualcomm IoT Platforms](https://ubuntu.com/download/qualcomm-iot) and [Install ROS Jazzy](https://docs.ros.org/en/jazzy/index.html) to setup environment. <br>
 > For Qualcomm Linux, please check out the [Qualcomm Intelligent Robotics Product SDK](https://docs.qualcomm.com/bundle/publicresource/topics/80-70018-265/introduction_1.html?vproduct=1601111740013072&version=1.4&facet=Qualcomm%20Intelligent%20Robotics%20Product%20(QIRP)%20SDK) documents.
 
+- Build the sample from source. See [Prerequisites](#-prerequisites) and [Build from source](#-build-from-source) below.
+
+## 🚀 Usage
+
+### 👨‍💻 Prerequisites
+
 - Add qcom ppa repository source:
 ```bash
 sudo add-apt-repository ppa:ubuntu-qcom-iot/qcom-ppa
@@ -88,12 +102,39 @@ sudo add-apt-repository ppa:ubuntu-qcom-iot/qirp
 sudo apt update
 ```
 
-- Install the PPE detection Debian package:
+- Install QRB ROS packages:
 ```bash
-sudo apt install -y ros-jazzy-sample-ppe-detection
+sudo apt install -y ros-jazzy-qrb-ros-nn-inference ros-jazzy-qrb-ros-tensor-list-msgs ros-jazzy-image-publisher ros-jazzy-usb-cam
+sudo apt install -y ros-dev-tools
+sudo rosdep init
+rosdep update
 ```
 
-## 🚀 Usage
+- Export the **Gear Guard Net** model from [Qualcomm AI Hub](https://aihub.qualcomm.com/models/gear_guard_net) as a QNN DLC. The model detects **helmet / vest** and takes a `320x192` (HxW) RGB input:
+```bash
+pip install qai-hub-models
+# Get your API token from https://aihub.qualcomm.com (Account → Settings) and configure it once:
+qai-hub configure --api_token <YOUR_AI_HUB_API_TOKEN>
+# Run `qai-hub list-devices` to see valid --device names, then export a QNN DLC:
+python -m qai_hub_models.models.gear_guard_net.export \
+    --target-runtime qnn_dlc \
+    --device "<your target device>"
+```
+> The exported `gear_guard_net.dlc` is written under the `build/` directory.
+
+- Set up the QAIRT environment following the [QAIRT general setup guide](https://docs.qualcomm.com/doc/80-63442-10/topic/general_setup.html).
+
+- Convert the DLC to a **QNN context binary**. The node loads `/opt/model/gear_guard_net_ctx.bin` by default. The context binary is tied to a specific HTP backend, so regenerate it on / for each target platform:
+```bash
+sudo mkdir -p /opt/model
+qnn-context-binary-generator \
+    --backend /usr/lib/libQnnHtp.so \
+    --model /usr/lib/libQnnModelDlc.so \
+    --dlc_path <path/to/gear_guard_net.dlc> \
+    --binary_file gear_guard_net_ctx \
+    --output_dir /opt/model
+```
+
 <details>
   <summary>Debian package usage details</summary>
 
@@ -111,58 +152,17 @@ ros2 launch sample_ppe_detection launch_with_image_publisher.py
 ros2 launch sample_ppe_detection launch_with_image_publisher.py image_path:=<your local image path> model_path:=<your local model path>
 ```
 
-- You can also run PPE detection on a video stream (or a live camera):
+- To run PPE detection from a **live USB (V4L2) camera** (recommended for real cameras — exposes resolution / frame rate / pixel format controls), install the USB camera driver and launch:
 ```bash
-ros2 launch sample_ppe_detection launch_with_video.py video_path:=<your local video path> model_path:=<your local model path>
+sudo apt install -y ros-jazzy-usb-cam
+ros2 launch sample_ppe_detection launch_with_camera.py video_device:=/dev/video0
 ```
 
-> **Note:** Pass `video_path:=0` (or `/dev/video0`) to `launch_with_video.py` to use a live camera instead of a file. Keep the publish rate low (1~3 Hz) — NPU inference is serial, so a higher rate just causes frame drops.
-
-## 👨‍💻 Visualization
-
-- You can then check the ROS topic `/ppe_detection/image` in rqt.
-Please refer to the [ROS 2 Jazzy documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Introducing-Turtlesim/Introducing-Turtlesim.html) to install rqt.
-
-- Alternatively, inspect the JSON result directly from the command line:
-```bash
-source /opt/ros/jazzy/setup.bash
-ros2 topic echo /ppe_detection/result
-```
+> **Note:** Defaults are `640x480 @ 30`, `pixel_format:=yuyv2rgb` (widest webcam compatibility). For a 720p/1080p webcam use MJPEG, e.g. `ros2 launch sample_ppe_detection launch_with_camera.py image_width:=1280 image_height:=720 pixel_format:=mjpeg2rgb`. The node self-throttles to NPU speed and drops surplus frames.
 
 </details>
 
-<details>
-  <summary>Build from source usage details</summary>
-
-## 👨‍💻 Prerequisites
-
-- Prepare the PPE detection model. The node expects a **precompiled QNN context binary** at `/opt/model/gear_guard_net_ctx.bin`. If you only have the raw `.dlc` model, convert it to a context binary:
-```bash
-sudo mkdir -p /opt/model
-qnn-context-binary-generator \
-    --backend /usr/lib/libQnnHtp.so \
-    --model /usr/lib/libQnnModelDlc.so \
-    --dlc_path <your_model.dlc> \
-    --binary_file gear_guard_net_ctx \
-    --output_dir /opt/model
-```
-
-- Add qcom ppa repository source:
-```bash
-sudo add-apt-repository ppa:ubuntu-qcom-iot/qcom-ppa
-sudo add-apt-repository ppa:ubuntu-qcom-iot/qirp
-sudo apt update
-```
-
-- Install QRB ROS packages:
-```bash
-sudo apt install -y ros-jazzy-qrb-ros-nn-inference ros-jazzy-qrb-ros-tensor-list-msgs ros-jazzy-image-publisher
-sudo apt install -y ros-dev-tools
-sudo rosdep init
-rosdep update
-```
-
-## 👨‍💻 Build from source
+### 👨‍💻 Build from source
 
 - Download source code from the qrb-ros-sample repository:
 ```bash
@@ -174,7 +174,7 @@ git clone -b jazzy-rel https://github.com/qualcomm-qrb-ros/qrb_ros_samples.git
 ```bash
 cd ~/qrb_ros_sample_ws/src/qrb_ros_samples/ai_vision/sample_ppe_detection
 
-rosdep install --from-paths . --ignore-src --rosdistro jazzy -y --skip-keys "qrb_ros_nn_inference"
+rosdep install --from-paths . --ignore-src --rosdistro jazzy -y --skip-keys "qrb_ros_nn_inference qrb_ros_tensor_list_msgs"
 source /opt/ros/jazzy/setup.bash
 colcon build
 source install/setup.bash
@@ -191,17 +191,26 @@ ros2 launch sample_ppe_detection launch_with_image_publisher.py
 ros2 launch sample_ppe_detection launch_with_image_publisher.py image_path:=<your local image path> model_path:=<your local model path>
 ```
 
-- You can also run PPE detection on a video stream (or a live camera):
+- You can also run PPE detection from a live USB (V4L2) camera:
 ```bash
-ros2 launch sample_ppe_detection launch_with_video.py video_path:=<your local video path> model_path:=<your local model path>
+sudo apt install -y ros-jazzy-usb-cam
+ros2 launch sample_ppe_detection launch_with_camera.py video_device:=/dev/video0
 ```
 
-</details>
+## 👨‍💻 Visualization
+
+- You can then check the ROS topic `/ppe_detection/image` in rqt.
+Please refer to the [ROS 2 Jazzy documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Introducing-Turtlesim/Introducing-Turtlesim.html) to install rqt.
+
+- Alternatively, inspect the JSON result directly from the command line:
+```bash
+source /opt/ros/jazzy/setup.bash
+ros2 topic echo /ppe_detection/result
+```
 
 ## 🤝 Contributing
 
-We love community contributions! Get started by reading our [CONTRIBUTING.md](CONTRIBUTING.md).<br>
-Feel free to create an issue for bug reports, feature requests, or any discussion 💡.
+We love community contributions! Feel free to create an issue for bug reports, feature requests, or any discussion 💡.
 
 ## ❤️ Contributors
 
@@ -229,7 +238,7 @@ NPU (HTP) inference is serial — one frame is processed at a time. Publishing f
 
 <details>
 <summary>Detections flicker between frames. How can I stabilize them?</summary><br>
-The node includes a temporal "box-hold" mechanism: if a class is missed in the current frame, it reuses the most recent detected box for up to <code>box_hold_frames</code> frames. Increase this value (via <code>launch_with_video.py</code>) to hold boxes longer, or set it to <code>0</code> to disable.
+The node includes a temporal "box-hold" mechanism: if a class is missed in the current frame, it reuses the most recent detected box for up to <code>box_hold_frames</code> frames. Increase this value (via <code>launch_with_camera.py</code>) to hold boxes longer, or set it to <code>0</code> to disable.
 </details>
 
 <details>

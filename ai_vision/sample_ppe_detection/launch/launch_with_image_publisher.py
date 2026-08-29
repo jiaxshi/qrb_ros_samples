@@ -8,13 +8,18 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch.actions import LogInfo
+from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
     # ── Launch Arguments ────────────────────────────────────────────────
+    default_image_path = os.path.join(
+        get_package_share_directory('sample_ppe_detection'),
+        'images', 'original.jpg'
+    )
     image_path_arg = DeclareLaunchArgument(
         'image_path',
-        default_value="/data/images/original.jpg",
+        default_value=default_image_path,
         description='Path to the input test image file'
     )
 
