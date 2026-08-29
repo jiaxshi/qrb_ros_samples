@@ -110,17 +110,17 @@ sudo rosdep init
 rosdep update
 ```
 
-- Export the **Gear Guard Net** model from [Qualcomm AI Hub](https://aihub.qualcomm.com/models/gear_guard_net) as a QNN DLC. The model detects **helmet / vest** and takes a `320x192` (HxW) RGB input:
+- Download the precompiled **Gear Guard Net** QNN DLC from [Qualcomm AI Hub](https://aihub.qualcomm.com/models/gear_guard_net) (detects **helmet / vest**, `320x192` HxW RGB input). The release asset is hosted publicly, so **no API token is required**:
 ```bash
-pip install qai-hub-models
-# Get your API token from https://aihub.qualcomm.com (Account → Settings) and configure it once:
-qai-hub configure --api_token <YOUR_AI_HUB_API_TOKEN>
-# Run `qai-hub list-devices` to see valid --device names, then export a QNN DLC:
-python -m qai_hub_models.models.gear_guard_net.export \
-    --target-runtime qnn_dlc \
-    --device "<your target device>"
+cd /tmp
+curl -fLO https://qaihub-public-assets.s3.us-west-2.amazonaws.com/qai-hub-models/models/gear_guard_net/releases/v0.61.0/gear_guard_net-qnn_dlc-w8a8.zip
+python3 -m zipfile -e gear_guard_net-qnn_dlc-w8a8.zip .
+# -> /tmp/gear_guard_net-qnn_dlc-w8a8/gear_guard_net.dlc
 ```
-> The exported `gear_guard_net.dlc` is written under the `build/` directory.
+> Alternatively, export the DLC yourself with an AI Hub account (requires an API token):
+> `pip install "qai-hub-models[gear-guard-net]"` → `qai-hub configure --api_token <TOKEN>` →
+> `python -m qai_hub_models.models.gear_guard_net.export --target-runtime qnn_dlc --device "<your target device>"`
+> (run `qai-hub list-devices` for valid `--device` names; the DLC is written under `build/`).
 
 - Set up the QAIRT environment following the [QAIRT general setup guide](https://docs.qualcomm.com/doc/80-63442-10/topic/general_setup.html).
 
@@ -130,7 +130,7 @@ sudo mkdir -p /opt/model
 qnn-context-binary-generator \
     --backend /usr/lib/libQnnHtp.so \
     --model /usr/lib/libQnnModelDlc.so \
-    --dlc_path <path/to/gear_guard_net.dlc> \
+    --dlc_path /tmp/gear_guard_net-qnn_dlc-w8a8/gear_guard_net.dlc \
     --binary_file gear_guard_net_ctx \
     --output_dir /opt/model
 ```
