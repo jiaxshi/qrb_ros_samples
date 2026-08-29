@@ -93,7 +93,7 @@ flowchart LR
 
 ## 🚀 Usage
 
-### 👨‍💻 Prerequisites
+### 🔧 Prerequisites
 
 - Add qcom ppa repository source:
 ```bash
@@ -162,7 +162,7 @@ ros2 launch sample_ppe_detection launch_with_camera.py video_device:=/dev/video0
 
 </details>
 
-### 👨‍💻 Build from source
+### 🔨 Build from source
 
 - Download source code from the qrb-ros-sample repository:
 ```bash
@@ -197,7 +197,7 @@ sudo apt install -y ros-jazzy-usb-cam
 ros2 launch sample_ppe_detection launch_with_camera.py video_device:=/dev/video0
 ```
 
-## 👨‍💻 Visualization
+## 📊 Visualization
 
 - You can then check the ROS topic `/ppe_detection/image` in rqt.
 Please refer to the [ROS 2 Jazzy documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Introducing-Turtlesim/Introducing-Turtlesim.html) to install rqt.
